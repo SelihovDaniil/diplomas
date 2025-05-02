@@ -31,13 +31,7 @@ const Create = async () => {
           name="image"
         />
       </label>
-      <button
-        className={`py-2 px-4 rounded transition ${
-          false
-            ? "bg-teal-200 text-teal-700"
-            : "cursor-pointer text-white bg-teal-700 hover:bg-teal-600 active:bg-teal-500"
-        }`}
-      >
+      <button className="py-2 px-4 rounded transition cursor-pointer text-white bg-teal-700 hover:bg-teal-600 active:bg-teal-500">
         Создать
       </button>
     </form>
