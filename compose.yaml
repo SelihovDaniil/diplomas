@@ -7,6 +7,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     restart: always
 
+  mongo:
+    image: "mongo"
+    restart: always
+
   minio:
     image: minio/minio
     command: server /data --console-address ":9001"
@@ -29,4 +33,12 @@ services:
     depends_on:
       - postgres
       - minio
+    restart: always
+
+  catalogs:
+    build: ./catalogs
+    ports:
+      - 3002:3000
+    depends_on:
+      - mongo
     restart: always
