@@ -25,7 +25,6 @@ const Delete = async ({
       {
         projection: {
           name: 1,
-          schema: 1,
           userId: 1,
           data: {
             $filter: {
@@ -46,18 +45,10 @@ const Delete = async ({
 
   return (
     <div>
-      <Typography variant="h4">{catalog.name}</Typography>
+      <Typography variant="h4">
+        {catalog.name} - {record.name}
+      </Typography>
       <p>Вы уверены что хоитите удалить эту запись?</p>
-      <ul>
-        {Object.keys(record)
-          .filter((key) => key !== "_id")
-          .map((key) => (
-            <li key={key}>
-              <b>{key}: </b>
-              {renderElement(catalog.schema, key, record[key])}
-            </li>
-          ))}
-      </ul>
       <form action={deleteRecord}>
         <input type="hidden" defaultValue={catalogId} name="catalogId" />
         <input type="hidden" defaultValue={recordId} name="recordId" />

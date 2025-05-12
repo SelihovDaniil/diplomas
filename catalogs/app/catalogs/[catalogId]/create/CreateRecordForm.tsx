@@ -1,104 +1,96 @@
 "use client";
 
-import { Controller, useForm } from "react-hook-form";
 import { createRecord } from "./actions";
 import {
+  Alert,
   Box,
   Button,
-  FormControlLabel,
-  Switch,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  styled,
   TextField,
 } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { generateDefaultValues } from "@/app/utils/dataTypes";
-import { useEffect, useState } from "react";
+
+import { useActionState, useState } from "react";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
+
+const initialState = {
+  message: "",
+};
 
 const CreateRecordForm = ({
   catalogId,
-  schema,
+  categories,
 }: {
   catalogId: string;
-  schema: { name: string; dataType: string }[];
+  categories: string[];
 }) => {
-  const { register, handleSubmit, control } = useForm({
-    defaultValues: generateDefaultValues(schema),
-  });
-
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const onSubmit = (data: Record<string, any>) => {
-    for (let el of schema) {
-      if (el.dataType === "date") {
-        data[el.name] = new Date(data[el.name]);
-      }
-      if (el.dataType === "number") {
-        data[el.name] = Number(data[el.name]);
-      }
-    }
-    createRecord(catalogId, data);
-  };
+  const [fileName, setFileName] = useState("");
+  const [state, formAction, pending] = useActionState(
+    createRecord,
+    initialState
+  );
 
   return (
     <Box sx={{ mt: 2 }}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form action={formAction}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {schema.map((el: any) => (
-            <div key={el.name}>
-              {el.dataType === "number" && (
-                <TextField
-                  label={el.name}
-                  type="number"
-                  {...register(el.name, { required: true })}
-                />
-              )}
-              {el.dataType === "string" && (
-                <TextField
-                  label={el.name}
-                  type="text"
-                  {...register(el.name, { required: true })}
-                />
-              )}
-              {el.dataType === "boolean" && (
-                <Controller
-                  name={el.name}
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <FormControlLabel
-                      label={el.name}
-                      control={
-                        <Switch
-                          checked={field.value}
-                          onChange={(e) => field.onChange(e.target.checked)}
-                        />
-                      }
-                    />
-                  )}
-                />
-              )}
-              {el.dataType === "date" && isClient && (
-                <Controller
-                  control={control}
-                  name={el.name}
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <DateTimePicker
-                      format="DD.MM.YYYY HH:mm"
-                      label={el.name}
-                      value={field.value}
-                      inputRef={field.ref}
-                      onChange={field.onChange}
-                    />
-                  )}
-                />
-              )}
-            </div>
-          ))}
+          <input type="hidden" value={catalogId} name="catalogId" />
+          <TextField name="name" label="Название" />
+          <TextField name="description" label="Описание" />
+          <FormControl fullWidth>
+            <InputLabel id="category-select-label">Категория</InputLabel>
+            <Select
+              name="category"
+              defaultValue={categories[0]}
+              labelId="category-select-label"
+              label="Категория"
+            >
+              {categories.map((el) => (
+                <MenuItem key={el} value={el}>
+                  {el}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <div>
+            {fileName}
+            <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+            >
+              Upload files
+              <VisuallyHiddenInput
+                name="image"
+                type="file"
+                onChange={(event) => {
+                  const files = event.target.files;
+                  if (!files?.length) return;
+                  setFileName(files[0].name);
+                }}
+              />
+            </Button>
+          </div>
+          {state.message && <Alert severity="error">{state.message}</Alert>}
           <Button
+            loading={pending}
             sx={{ width: "fit-content" }}
             type="submit"
             variant="contained"

@@ -8,18 +8,16 @@ import * as v from "valibot";
 
 const PollSchema = v.object({
   name: v.string(),
-  properties: v.array(v.object({ name: v.string(), dataType: v.string() })),
+  categories: v.array(v.string()),
 });
 
 export const createCatalog = async (prevState: any, formData: FormData) => {
   const session = await auth();
   if (!session?.user?.id) return redirect("/auth");
 
-  const { name, properties } = await v.parseAsync(PollSchema, {
+  const { name, categories } = await v.parseAsync(PollSchema, {
     name: formData.get("name"),
-    properties: formData
-      .getAll("properties")
-      .map((el) => JSON.parse(el as string)),
+    categories: formData.getAll("categories"),
   });
 
   await client.connect();
@@ -28,7 +26,7 @@ export const createCatalog = async (prevState: any, formData: FormData) => {
     .collection("catalogs")
     .insertOne({
       name,
-      schema: properties,
+      categories,
       userId: new ObjectId(session.user.id),
     });
   await client.close();

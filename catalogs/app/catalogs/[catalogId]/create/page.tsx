@@ -18,7 +18,10 @@ const Catalog = async ({
   const catalog = await client
     .db("catalogs")
     .collection("catalogs")
-    .findOne({ _id: new ObjectId(catalogId) });
+    .findOne(
+      { _id: new ObjectId(catalogId) },
+      { projection: { categories: 1, userId: 1 } }
+    );
   await client.close();
 
   if (!catalog) return notFound();
@@ -27,7 +30,7 @@ const Catalog = async ({
   return (
     <div>
       <Typography variant="h4">Создание записи</Typography>
-      <CreateRecordForm catalogId={catalogId} schema={catalog.schema} />
+      <CreateRecordForm catalogId={catalogId} categories={catalog.categories} />
     </div>
   );
 };

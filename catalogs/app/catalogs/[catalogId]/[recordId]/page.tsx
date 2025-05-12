@@ -4,7 +4,8 @@ import Link from "next/link";
 import client from "@/lib/db";
 import { ObjectId } from "mongodb";
 import { renderElement } from "@/app/utils/dataTypes";
-import { Button, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
+import Image from "next/image";
 
 const Record = async ({
   params,
@@ -24,7 +25,6 @@ const Record = async ({
       {
         projection: {
           name: 1,
-          schema: 1,
           userId: 1,
           data: {
             $filter: {
@@ -46,17 +46,25 @@ const Record = async ({
 
   return (
     <div>
-      <Typography variant="h4">{catalog.name}</Typography>
-      <ul>
-        {Object.keys(record)
-          .filter((key) => key !== "_id")
-          .map((key) => (
-            <li key={key}>
-              <b>{key}: </b>
-              {renderElement(catalog.schema, key, record[key])}
-            </li>
-          ))}
-      </ul>
+      <Typography variant="h4">
+        {catalog.name} - {record.name}
+      </Typography>
+      <Box
+        sx={{
+          width: "100%",
+          height: 400,
+          position: "relative",
+        }}
+      >
+        <Image
+          style={{ objectFit: "contain" }}
+          fill
+          src={`/api/images/${record.image}`}
+          alt={record.name}
+        />
+      </Box>
+      <Typography variant="body1">Категория: {record.category}</Typography>
+      <Typography variant="body2">{record.description}</Typography>
 
       {isOwner && (
         <Button

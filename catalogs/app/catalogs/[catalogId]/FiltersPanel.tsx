@@ -1,10 +1,15 @@
 "use client";
 
-import { Box, TextField, FormControlLabel, Switch } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
+import {
+  Autocomplete,
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 const debounce = <T extends (...args: any[]) => void>(
   func: T,
@@ -17,11 +22,7 @@ const debounce = <T extends (...args: any[]) => void>(
   };
 };
 
-const FiltersPanel = ({
-  schema,
-}: {
-  schema: { name: string; dataType: string }[];
-}) => {
+const FiltersPanel = ({ categories }: { categories: string[] }) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -41,60 +42,24 @@ const FiltersPanel = ({
     1000
   );
 
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   return (
     <nav>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {schema.map((el: any) => (
-          <div key={el.name}>
-            {el.dataType === "number" && (
-              <TextField
-                label={el.name}
-                type="number"
-                onChange={(e) => handleChange(el.name, e.target.value)}
-                defaultValue={searchParams.get(el.name) || ""}
-              />
-            )}
-            {el.dataType === "string" && (
-              <TextField
-                label={el.name}
-                type="text"
-                onChange={(e) => handleChange(el.name, e.target.value)}
-                defaultValue={searchParams.get(el.name) || ""}
-              />
-            )}
-            {el.dataType === "boolean" && (
-              <FormControlLabel
-                label={el.name}
-                control={
-                  <Switch
-                    defaultChecked={searchParams.get(el.name) === "true"}
-                    onChange={(e) => handleChange(el.name, e.target.checked)}
-                  />
-                }
-              />
-            )}
-            {el.dataType === "date" && isClient && (
-              <DateTimePicker
-                label={el.name}
-                format="DD.MM.YYYY HH:mm"
-                defaultValue={
-                  searchParams.get(el.name)
-                    ? dayjs(searchParams.get(el.name))
-                    : null
-                }
-                onChange={(value) => {
-                  handleChange(el.name, value?.toDate().toISOString() || "");
-                }}
-              />
-            )}
-          </div>
-        ))}
+      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+        <TextField
+          sx={{ flexGrow: 1 }}
+          label="Название"
+          type="text"
+          onChange={(e) => handleChange("name", e.target.value)}
+          defaultValue={searchParams.get("name") || ""}
+        />
+        <Autocomplete
+          disablePortal
+          options={categories}
+          defaultValue={searchParams.get("category") || ""}
+          onChange={(e, newValue) => handleChange("category", newValue)}
+          sx={{ flexBasis: 200 }}
+          renderInput={(params) => <TextField {...params} label="Категория" />}
+        />
       </Box>
     </nav>
   );

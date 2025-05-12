@@ -3,88 +3,76 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import client from "@/lib/db";
 import { ObjectId } from "mongodb";
-import { renderElement } from "@/app/utils/dataTypes";
 import FiltersPanel from "./FiltersPanel";
 import {
   Box,
   Button,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  Grid,
+  Typography,
 } from "@mui/material";
-import LaunchIcon from "@mui/icons-material/Launch";
 
 const Catalog = async ({
   params,
   searchParams,
 }: {
   params: Promise<{ catalogId: string }>;
-  searchParams: Promise<{ [k: string]: string }>;
+  searchParams: Promise<{ category?: string; name?: string }>;
 }) => {
   const session = await auth();
 
   const { catalogId } = await params;
-  const rawParams = await searchParams;
+  const filters = await searchParams;
 
   await client.connect();
-  const collection = await client.db("catalogs").collection("catalogs");
-
-  const catalog = await collection.findOne(
-    {
-      _id: new ObjectId(catalogId),
-    },
-    { projection: { name: 1, _id: 1, schema: 1, userId: 1 } }
-  );
-  if (!catalog) return notFound();
-
-  const filters: Record<string, any> = {};
-  for (const field of catalog.schema) {
-    const raw = rawParams[field.name];
-    if (!raw) continue;
-
-    switch (field.dataType) {
-      case "string":
-        filters[field.name] = raw;
-        break;
-      case "number":
-        const num = Number(raw);
-        if (!isNaN(num)) filters[field.name] = num;
-        break;
-      case "boolean":
-        filters[field.name] = raw === "true";
-        break;
-      case "date":
-        const date = new Date(raw);
-        if (!isNaN(date.getTime())) filters[field.name] = date;
-        break;
-    }
-  }
 
   const pipeline = [
     { $match: { _id: new ObjectId(catalogId) } },
     {
       $project: {
+        name: 1,
+        categories: 1,
+        userId: 1,
         data: {
           $filter: {
             input: "$data",
             as: "item",
             cond: {
-              $and: Object.entries(filters).map(([key, value]) => ({
-                $eq: [`$$item.${key}`, value],
-              })),
+              $and: [
+                ...(filters.name
+                  ? [
+                      {
+                        $regexMatch: {
+                          input: "$$item.name",
+                          regex: filters.name,
+                          options: "i",
+                        },
+                      },
+                    ]
+                  : []),
+                ...(filters.category
+                  ? [
+                      {
+                        $eq: ["$$item.category", filters.category],
+                      },
+                    ]
+                  : []),
+              ],
             },
           },
         },
       },
     },
   ];
+  const catalog = await client
+    .db("catalogs")
+    .collection("catalogs")
+    .aggregate(pipeline)
+    .next();
 
-  const [filtered] = await collection.aggregate(pipeline).toArray();
   await client.close();
 
   if (!catalog) return notFound();
@@ -93,45 +81,39 @@ const Catalog = async ({
   return (
     <div>
       <h1>{catalog.name}</h1>
-      <FiltersPanel schema={catalog.schema} />
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              {catalog.schema.map((el: any) => (
-                <TableCell align="center" key={el.name}>
-                  {el.name}
-                </TableCell>
-              ))}
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filtered.data?.map((record: any) => (
-              <TableRow
-                key={record._id.toString()}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+      <FiltersPanel categories={catalog.categories} />
+
+      <Grid
+        sx={{ mt: 4 }}
+        container
+        spacing={2}
+        columns={{ xs: 1, sm: 2, md: 3, lg: 4 }}
+      >
+        {catalog.data?.map((el: any) => (
+          <Grid key={el._id.toString()} size={{ xs: 1 }}>
+            <Card sx={{ height: "100%" }}>
+              <CardActionArea
+                sx={{ height: "100%" }}
+                LinkComponent={Link}
+                href={`/catalogs/${catalogId}/${el._id.toString()}`}
               >
-                {Object.keys(record)
-                  .filter((el) => el !== "_id")
-                  .map((key: any) => (
-                    <TableCell align="center" key={key}>
-                      {renderElement(catalog.schema, key, record[key])}
-                    </TableCell>
-                  ))}
-                <TableCell align="center">
-                  <IconButton
-                    LinkComponent={Link}
-                    href={`/catalogs/${catalogId}/${record._id.toString()}`}
-                  >
-                    <LaunchIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                <CardMedia
+                  sx={{ height: 140 }}
+                  image={`/api/images/${el.image}`}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {el.name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {el.category}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
       {isOwner && (
         <Box sx={{ mt: 4, display: "flex", gap: 2 }}>
           <Button LinkComponent={Link} href={`/catalogs/${catalogId}/create`}>
