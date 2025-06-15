@@ -51,6 +51,12 @@ const Poll = async ({ params }: { params: Promise<{ id: string }> }) => {
           {pollUrl}
         </Link>
       </p>
+      <Link
+        className="bg-red-500 px-4 py-2 w-fit text-white hover:bg-rose-600 active:bg-rose-700 transition"
+        href={`/dashboard/polls/${id}/delete`}
+      >
+        Удалить
+      </Link>
     </div>
   );
 };

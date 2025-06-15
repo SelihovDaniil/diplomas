@@ -13,7 +13,7 @@ const Home = async ({
 }) => {
   const { query } = await searchParams;
   const services = await prisma.service.findMany({
-    where: { name: { search: query } },
+    where: { name: { contains: query, mode: "insensitive" } },
   });
 
   return (
@@ -24,7 +24,8 @@ const Home = async ({
           const QuerySchema = v.string();
           const query = v.parse(QuerySchema, formData.get("query"));
           if (!query) return redirect("/");
-          return redirect("/?query=" + query);
+          const params = new URLSearchParams({ query });
+          return redirect(`/?${params.toString()}`);
         }}
         className="flex gap-2"
       >
