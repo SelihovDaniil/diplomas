@@ -56,7 +56,8 @@ export const createRecord = async (prevState: any, formData: FormData) => {
     .collection("catalogs")
     .findOne({ _id: new ObjectId(catalogId) }, { projection: { userId: 1 } });
   if (!catalog) return notFound();
-  if (catalog.userId.toString() !== session?.user?.id) return redirect("/auth");
+  if (catalog.userId.toString() !== session?.user?.id)
+    return redirect("/api/auth/signin");
 
   await client
     .db("catalogs")

@@ -7,7 +7,7 @@ import { notFound, redirect } from "next/navigation";
 const Order = async ({ params }: { params: Promise<{ id: string }> }) => {
   const session = await auth();
 
-  if (!session?.user) return redirect("/auth");
+  if (!session?.user) return redirect("/api/auth/signin");
 
   const { id } = await params;
 

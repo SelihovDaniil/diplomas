@@ -12,7 +12,7 @@ const BookServiceSchema = v.object({
 
 export const bookService = async (formData: FormData) => {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/auth");
+  if (!session?.user?.id) return redirect("/api/auth/signin");
 
   const { id, comment } = await v.parseAsync(BookServiceSchema, {
     id: formData.get("id"),

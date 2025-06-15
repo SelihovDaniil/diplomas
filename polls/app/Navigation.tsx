@@ -1,4 +1,4 @@
-import { auth, signOut } from "@/auth";
+import { auth, signIn } from "@/auth";
 import Link from "next/link";
 
 const Navigation = async () => {
@@ -17,12 +17,19 @@ const Navigation = async () => {
           Аккаунт
         </Link>
       ) : (
-        <Link
-          className="bg-white px-4 py-2 rounded-md hover:bg-amber-100 active:bg-amber-200 transition"
-          href="/auth"
+        <form
+          action={async () => {
+            "use server";
+            await signIn("yandex", { redirectTo: "/dashboard" });
+          }}
         >
-          Вход
-        </Link>
+          <button
+            type="submit"
+            className="bg-white px-4 py-2 rounded-md hover:bg-amber-100 active:bg-amber-200 transition cursor-pointer"
+          >
+            Вход
+          </button>
+        </form>
       )}
     </nav>
   );

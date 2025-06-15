@@ -5,7 +5,7 @@ import { createService } from "./action";
 const Create = async () => {
   const session = await auth();
 
-  if (!session?.user) return redirect("/auth");
+  if (!session?.user) return redirect("/api/auth/signin");
 
   return (
     <form

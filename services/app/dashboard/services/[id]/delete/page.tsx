@@ -7,7 +7,7 @@ import { deleteService } from "./action";
 const Delete = async ({ params }: { params: Promise<{ id: string }> }) => {
   const session = await auth();
 
-  if (!session?.user) return redirect("/auth");
+  if (!session?.user) return redirect("/api/auth/signin");
 
   const { id } = await params;
 

@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 import Link from "next/link";
 
@@ -18,9 +18,14 @@ const Navigation = async () => {
             Аккаунт
           </Button>
         ) : (
-          <Button href="/auth" LinkComponent={Link}>
-            Вход
-          </Button>
+          <form
+            action={async () => {
+              "use server";
+              await signIn("yandex", { redirectTo: "/dashboard" });
+            }}
+          >
+            <Button type="submit">Вход</Button>
+          </form>
         )}
       </Toolbar>
     </AppBar>

@@ -13,7 +13,7 @@ const PollSchema = v.object({
 
 export const createCatalog = async (prevState: any, formData: FormData) => {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/auth");
+  if (!session?.user?.id) return redirect("/api/auth/signin");
 
   const { name, categories } = await v.parseAsync(PollSchema, {
     name: formData.get("name"),
@@ -27,7 +27,7 @@ export const createCatalog = async (prevState: any, formData: FormData) => {
     .insertOne({
       name,
       categories,
-      userId: new ObjectId(session.user.id),
+      userId: session.user.id,
     });
   await client.close();
 

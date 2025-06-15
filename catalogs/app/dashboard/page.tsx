@@ -9,21 +9,20 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import { ObjectId } from "mongodb";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import SignOutButton from "./SignOutButton";
 
 const Dashboard = async () => {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/auth");
+  if (!session?.user?.id) return redirect("/api/auth/signin");
 
   await client.connect();
 
   const catalogs = await client
     .db("catalogs")
     .collection("catalogs")
-    .find({ userId: new ObjectId(session.user.id) })
+    .find({ userId: session.user.id })
     .toArray();
 
   await client.close();

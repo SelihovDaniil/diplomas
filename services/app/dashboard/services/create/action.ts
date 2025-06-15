@@ -14,7 +14,7 @@ const ServiceSchema = v.object({
 
 export const createService = async (formData: FormData) => {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/auth");
+  if (!session?.user?.id) return redirect("/api/auth/signin");
 
   const { name, description, image } = await v.parseAsync(ServiceSchema, {
     name: formData.get("name"),

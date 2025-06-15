@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 const Services = async () => {
   const session = await auth();
 
-  if (!session?.user) return redirect("/auth");
+  if (!session?.user) return redirect("/api/auth/signin");
 
   const services = await prisma.service.findMany({
     where: { userId: session.user.id },

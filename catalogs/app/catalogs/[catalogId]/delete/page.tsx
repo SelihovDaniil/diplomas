@@ -30,7 +30,8 @@ const Delete = async ({
   await client.close();
 
   if (!catalog) return notFound();
-  if (session?.user?.id !== catalog.userId.toString()) return redirect("/auth");
+  if (session?.user?.id !== catalog.userId.toString())
+    return redirect("/api/auth/signin");
 
   return (
     <div>

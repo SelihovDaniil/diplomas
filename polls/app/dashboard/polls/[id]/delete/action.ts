@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 export const deletePoll = async (id: string) => {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/auth");
+  if (!session?.user?.id) return redirect("/api/auth/signin");
 
   await prisma.poll.delete({ where: { id } });
 

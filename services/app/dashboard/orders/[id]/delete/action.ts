@@ -12,7 +12,7 @@ const DeleteServiceSchema = v.object({
 
 export const deleteService = async (formData: FormData) => {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/auth");
+  if (!session?.user?.id) return redirect("/api/auth/signin");
 
   const { id } = await v.parseAsync(DeleteServiceSchema, {
     id: formData.get("id"),

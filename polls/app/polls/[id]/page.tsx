@@ -7,7 +7,7 @@ import { makeVote } from "./action";
 
 const Poll = async ({ params }: { params: Promise<{ id: string }> }) => {
   const session = await auth();
-  if (!session?.user) return redirect("/auth");
+  if (!session?.user) return redirect("/api/auth/signin");
 
   const { id } = await params;
   const headersList = await headers();

@@ -13,7 +13,7 @@ const VoteSchema = v.object({
 
 export const makeVote = async (formData: FormData) => {
   const session = await auth();
-  if (!session?.user) return redirect("/auth");
+  if (!session?.user) return redirect("/api/auth/signin");
 
   const { optionId, pollId } = await v.parseAsync(VoteSchema, {
     pollId: formData.get("pollId"),

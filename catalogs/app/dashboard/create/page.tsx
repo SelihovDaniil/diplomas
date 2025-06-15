@@ -5,7 +5,7 @@ import { Typography } from "@mui/material";
 
 const Create = async () => {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/auth");
+  if (!session?.user?.id) return redirect("/api/auth/signin");
 
   return (
     <div>

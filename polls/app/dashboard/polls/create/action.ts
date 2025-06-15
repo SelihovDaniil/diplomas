@@ -14,7 +14,7 @@ const PollSchema = v.object({
 
 export const createPoll = async (prevState: any, formData: FormData) => {
   const session = await auth();
-  if (!session?.user?.id) return redirect("/auth");
+  if (!session?.user?.id) return redirect("/api/auth/signin");
 
   const { name, endsAt, userId, options } = await v.parseAsync(PollSchema, {
     name: formData.get("name"),

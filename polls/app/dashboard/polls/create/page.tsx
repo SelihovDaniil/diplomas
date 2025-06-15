@@ -4,7 +4,7 @@ import CreatePollForm from "./CreatePollForm";
 
 const Create = async () => {
   const session = await auth();
-  if (!session?.user) return redirect("/auth");
+  if (!session?.user) return redirect("/api/auth/signin");
 
   return <CreatePollForm userId={session.user.id} />;
 };
